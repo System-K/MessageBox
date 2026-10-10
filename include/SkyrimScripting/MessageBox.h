@@ -13,9 +13,8 @@ namespace SkyrimScripting {
         public:
             ~MessageBoxResultCallback() override {}
             MessageBoxResultCallback(std::function<void(unsigned int)> callback) : _callback(callback) {}
-            void Run(RE::IMessageBoxCallback::Message message) override {
-                _callback(static_cast<unsigned int>(message));
-            }
+            // CommonLibSSE-NG >= 11: Run() takes the pressed button index directly (was enum Message).
+            void Run(std::uint8_t a_button) override { _callback(static_cast<unsigned int>(a_button)); }
         };
 
     public:
@@ -31,7 +30,8 @@ namespace SkyrimScripting {
             messagebox->callback = messageCallback;
             messagebox->bodyText = bodyText;
             for (auto text : buttonTextValues) messagebox->buttonText.push_back(text.c_str());
-            messagebox->QueueMessage();
+            // CommonLibSSE-NG >= 11: same engine function (ID 51422/52271), now on MessageBoxMenu.
+            RE::MessageBoxMenu::QueueMessage(messagebox);
         }
     };
 
